@@ -25,7 +25,9 @@
   --bs-body-color: var(--coffee-900);
   --bs-border-color: var(--coffee-100);
   --bs-link-color: var(--coffee-700);
+  --bs-link-color-rgb: 74, 52, 40;
   --bs-link-hover-color: var(--coffee-500);
+  --bs-link-hover-color-rgb: 122, 86, 63;
 
   --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
   --font-body: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -128,7 +130,8 @@ h2,
 /* ---- page furniture ------------------------------------------------ */
 
 .page-header {
-  padding: 2.5rem 0 1.5rem;
+  padding-top: 2.5rem;
+  padding-bottom: 1.5rem;
 }
 
 .page-header h1 {
@@ -387,7 +390,8 @@ h2,
 
 @media (max-width: 575.98px) {
   .page-header {
-    padding: 1.75rem 0 1rem;
+    padding-top: 1.75rem;
+    padding-bottom: 1rem;
   }
 
   .hero {

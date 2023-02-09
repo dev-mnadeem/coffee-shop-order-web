@@ -38,3 +38,10 @@ describe('<ItemThumbnail />', () => {
     // the article is found by the item name alone.
   });
 });
+
+describe('hueFor palette', () => {
+  it('stays out of the blue and purple range', () => {
+    const names = ['Espresso', 'Flat White', 'Cold Brew', 'Butter Croissant', 'Almond Danish'];
+    names.map(hueFor).forEach((hue) => expect(hue < 180 || hue > 300).toBe(true));
+  });
+});

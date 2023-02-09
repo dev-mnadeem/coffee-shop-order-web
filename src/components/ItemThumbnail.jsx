@@ -6,7 +6,8 @@
  * nothing to license.
  */
 
-const HUES = [20, 50, 95, 145, 190, 230, 275, 325];
+// Roast, caramel, oat, sage and berry: the colours of the counter, not a rainbow.
+const HUES = [8, 20, 30, 40, 52, 85, 140, 350];
 
 /** A small, stable hash so the same name always gets the same colour. */
 export function hueFor(name = '') {
