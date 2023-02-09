@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { server } from '../test/server';
 import { API } from '../test/handlers';
 import ApiError from './ApiError';
@@ -39,8 +39,8 @@ describe('resolveBaseUrl', () => {
 describe('errors', () => {
   it('surfaces the API’s own messages from a 422', async () => {
     server.use(
-      rest.get(`${API}/items`, (_req, res, ctx) =>
-        res(ctx.status(422), ctx.json({ errors: ['Item 99 does not exist'] }))
+      http.get(`${API}/items`, () =>
+        HttpResponse.json({ errors: ['Item 99 does not exist'] }, { status: 422 })
       )
     );
 
@@ -49,7 +49,7 @@ describe('errors', () => {
   });
 
   it('gives a 500 a message a customer can read, and marks it retryable', async () => {
-    server.use(rest.get(`${API}/items`, (_req, res, ctx) => res(ctx.status(500))));
+    server.use(http.get(`${API}/items`, () => new HttpResponse(null, { status: 500 })));
 
     const error = await get('/items').catch((caught) => caught);
     expect(error.status).toBe(500);
@@ -58,7 +58,7 @@ describe('errors', () => {
   });
 
   it('explains a connection failure rather than leaking axios internals', async () => {
-    server.use(rest.get(`${API}/items`, (_req, res) => res.networkError('ECONNREFUSED')));
+    server.use(http.get(`${API}/items`, () => HttpResponse.error()));
 
     const error = await get('/items').catch((caught) => caught);
     expect(error).toBeInstanceOf(ApiError);

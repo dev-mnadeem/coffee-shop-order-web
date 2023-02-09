@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { CUSTOMERS, DISCOUNTS, ITEMS, PLACED_ORDER, paginate } from './fixtures';
 
 export const API = 'http://localhost:3001/api/v1';
@@ -11,26 +11,27 @@ export const API = 'http://localhost:3001/api/v1';
  * Tests that need a failure override a single handler with `server.use(...)`.
  */
 export const handlers = [
-  rest.get(`${API}/items`, (req, res, ctx) =>
-    res(ctx.status(200), ctx.json(paginate('items', ITEMS, readPageParams(req))))
+  http.get(`${API}/items`, ({ request }) =>
+    HttpResponse.json(paginate('items', ITEMS, readPageParams(request)))
   ),
-  rest.get(`${API}/discounts`, (req, res, ctx) =>
-    res(ctx.status(200), ctx.json(paginate('discounts', DISCOUNTS, readPageParams(req))))
+  http.get(`${API}/discounts`, ({ request }) =>
+    HttpResponse.json(paginate('discounts', DISCOUNTS, readPageParams(request)))
   ),
-  rest.get(`${API}/customers`, (req, res, ctx) =>
-    res(ctx.status(200), ctx.json(paginate('customers', CUSTOMERS, readPageParams(req))))
+  http.get(`${API}/customers`, ({ request }) =>
+    HttpResponse.json(paginate('customers', CUSTOMERS, readPageParams(request)))
   ),
-  rest.post(`${API}/items`, async (req, res, ctx) => {
-    const body = await req.json();
-    return res(ctx.status(201), ctx.json({ id: 99, ...body }));
+  http.post(`${API}/items`, async ({ request }) => {
+    const body = await request.json();
+    return HttpResponse.json({ id: 99, ...body }, { status: 201 });
   }),
-  rest.delete(`${API}/items/:id`, (_req, res, ctx) => res(ctx.status(204))),
-  rest.post(`${API}/orders`, (_req, res, ctx) => res(ctx.status(201), ctx.json(PLACED_ORDER))),
+  http.delete(`${API}/items/:id`, () => new HttpResponse(null, { status: 204 })),
+  http.post(`${API}/orders`, () => HttpResponse.json(PLACED_ORDER, { status: 201 })),
 ];
 
-function readPageParams(req) {
+function readPageParams(request) {
+  const params = new URL(request.url).searchParams;
   return {
-    page: Number(req.url.searchParams.get('page')) || 1,
-    perPage: Number(req.url.searchParams.get('per_page')) || 25,
+    page: Number(params.get('page')) || 1,
+    perPage: Number(params.get('per_page')) || 25,
   };
 }

@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { server } from '../test/server';
 import { API } from '../test/handlers';
 import { fetchAll, fetchPage } from './collection';
@@ -8,9 +8,9 @@ describe('fetchPage', () => {
   it('sends the page parameters the API expects', async () => {
     const seen = [];
     server.use(
-      rest.get(`${API}/customers`, (req, res, ctx) => {
-        seen.push(req.url.search);
-        return res(ctx.status(200), ctx.json({ customers: [], meta: { total_pages: 1 } }));
+      http.get(`${API}/customers`, ({ request }) => {
+        seen.push(new URL(request.url).search);
+        return HttpResponse.json({ customers: [], meta: { total_pages: 1 } });
       })
     );
 
@@ -23,9 +23,9 @@ describe('fetchPage', () => {
   it('caps per_page so a caller cannot ask the API for everything at once', async () => {
     const seen = [];
     server.use(
-      rest.get(`${API}/customers`, (req, res, ctx) => {
-        seen.push(req.url.searchParams.get('per_page'));
-        return res(ctx.status(200), ctx.json({ customers: [], meta: { total_pages: 1 } }));
+      http.get(`${API}/customers`, ({ request }) => {
+        seen.push(new URL(request.url).searchParams.get('per_page'));
+        return HttpResponse.json({ customers: [], meta: { total_pages: 1 } });
       })
     );
 
@@ -35,9 +35,7 @@ describe('fetchPage', () => {
   });
 
   it('survives an envelope that does not carry the collection', async () => {
-    server.use(
-      rest.get(`${API}/customers`, (_req, res, ctx) => res(ctx.status(200), ctx.json({})))
-    );
+    server.use(http.get(`${API}/customers`, () => HttpResponse.json({})));
 
     const { records } = await fetchPage('customers');
     expect(records).toEqual([]);
@@ -51,16 +49,13 @@ describe('fetchAll', () => {
       name: `Item ${index + 1}`,
     }));
     server.use(
-      rest.get(`${API}/items`, (req, res, ctx) => {
-        const page = Number(req.url.searchParams.get('page')) || 1;
+      http.get(`${API}/items`, ({ request }) => {
+        const page = Number(new URL(request.url).searchParams.get('page')) || 1;
         const perPage = 12;
-        return res(
-          ctx.status(200),
-          ctx.json({
-            items: all.slice((page - 1) * perPage, page * perPage),
-            meta: { page, per_page: perPage, total_count: all.length, total_pages: 3 },
-          })
-        );
+        return HttpResponse.json({
+          items: all.slice((page - 1) * perPage, page * perPage),
+          meta: { page, per_page: perPage, total_count: all.length, total_pages: 3 },
+        });
       })
     );
 
@@ -72,8 +67,8 @@ describe('fetchAll', () => {
 
   it('stops after the page cap even if the API claims there are more', async () => {
     server.use(
-      rest.get(`${API}/items`, (_req, res, ctx) =>
-        res(ctx.status(200), ctx.json({ items: [{ id: 1 }], meta: { total_pages: 9999 } }))
+      http.get(`${API}/items`, () =>
+        HttpResponse.json({ items: [{ id: 1 }], meta: { total_pages: 9999 } })
       )
     );
 

@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import userEvent from '@testing-library/user-event';
 import Items from './Items';
 import { server } from '../test/server';
@@ -44,8 +44,8 @@ describe('<Items />', () => {
 
   it('reports a failed delete instead of crashing on an undefined response', async () => {
     server.use(
-      rest.delete(`${API}/items/:id`, (_req, res, ctx) =>
-        res(ctx.status(422), ctx.json({ errors: ['Item is on an open order'] }))
+      http.delete(`${API}/items/:id`, () =>
+        HttpResponse.json({ errors: ['Item is on an open order'] }, { status: 422 })
       )
     );
     const user = userEvent.setup();
@@ -59,7 +59,7 @@ describe('<Items />', () => {
   });
 
   it('tells the difference between an empty menu and a broken API', async () => {
-    server.use(rest.get(`${API}/items`, (_req, res, ctx) => res(ctx.status(500))));
+    server.use(http.get(`${API}/items`, () => new HttpResponse(null, { status: 500 })));
     renderWithProviders(<Items />);
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/bad day/i);
@@ -69,9 +69,7 @@ describe('<Items />', () => {
 
   it('shows the empty state when the shop really has no items', async () => {
     server.use(
-      rest.get(`${API}/items`, (_req, res, ctx) =>
-        res(ctx.status(200), ctx.json({ items: [], meta: { total_pages: 1 } }))
-      )
+      http.get(`${API}/items`, () => HttpResponse.json({ items: [], meta: { total_pages: 1 } }))
     );
     renderWithProviders(<Items />);
 

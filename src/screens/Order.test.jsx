@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import userEvent from '@testing-library/user-event';
 import Order from './Order';
 import { server } from '../test/server';
@@ -63,8 +63,8 @@ describe('<Order />', () => {
 
   it('shows a rejected order instead of taking the page down', async () => {
     server.use(
-      rest.post(`${API}/orders`, (_req, res, ctx) =>
-        res(ctx.status(422), ctx.json({ errors: ['Not enough Butter Croissant in stock'] }))
+      http.post(`${API}/orders`, () =>
+        HttpResponse.json({ errors: ['Not enough Butter Croissant in stock'] }, { status: 422 })
       )
     );
     const user = userEvent.setup();
@@ -84,9 +84,9 @@ describe('<Order />', () => {
   it('refuses to post an order with no customer', async () => {
     let posted = false;
     server.use(
-      rest.post(`${API}/orders`, (_req, res, ctx) => {
+      http.post(`${API}/orders`, () => {
         posted = true;
-        return res(ctx.status(201), ctx.json({}));
+        return HttpResponse.json({}, { status: 201 });
       })
     );
     const user = userEvent.setup();
@@ -129,9 +129,9 @@ describe('<Order /> stock check', () => {
   it('stops an order that asks for more than is on the shelf', async () => {
     let posted = false;
     server.use(
-      rest.post(`${API}/orders`, (_req, res, ctx) => {
+      http.post(`${API}/orders`, () => {
         posted = true;
-        return res(ctx.status(201), ctx.json({}));
+        return HttpResponse.json({}, { status: 201 });
       })
     );
     const user = userEvent.setup();

@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { server } from '../test/server';
 import { API } from '../test/handlers';
 import { createOrder } from './orders';
@@ -7,9 +7,9 @@ describe('createOrder', () => {
   it('sends numeric ids and quantities, not the form’s strings', async () => {
     let body;
     server.use(
-      rest.post(`${API}/orders`, async (req, res, ctx) => {
-        body = await req.json();
-        return res(ctx.status(201), ctx.json({ id: 1, total_amount: 6.78 }));
+      http.post(`${API}/orders`, async ({ request }) => {
+        body = await request.json();
+        return HttpResponse.json({ id: 1, total_amount: 6.78 }, { status: 201 });
       })
     );
 
@@ -26,8 +26,8 @@ describe('createOrder', () => {
 
   it('rejects with the API’s message when an item does not exist', async () => {
     server.use(
-      rest.post(`${API}/orders`, (_req, res, ctx) =>
-        res(ctx.status(422), ctx.json({ errors: ['Item 99 does not exist'] }))
+      http.post(`${API}/orders`, () =>
+        HttpResponse.json({ errors: ['Item 99 does not exist'] }, { status: 422 })
       )
     );
 

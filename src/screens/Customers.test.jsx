@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import userEvent from '@testing-library/user-event';
 import Customers from './Customers';
 import { server } from '../test/server';
@@ -19,14 +19,11 @@ describe('<Customers />', () => {
 
   it('reports the total the API knows about, not just the page length', async () => {
     server.use(
-      rest.get(`${API}/customers`, (_req, res, ctx) =>
-        res(
-          ctx.status(200),
-          ctx.json({
-            customers: [{ id: 1, name: 'Ada Lovelace', email: 'ada@example.com' }],
-            meta: { page: 1, per_page: 25, total_count: 412, total_pages: 17 },
-          })
-        )
+      http.get(`${API}/customers`, () =>
+        HttpResponse.json({
+          customers: [{ id: 1, name: 'Ada Lovelace', email: 'ada@example.com' }],
+          meta: { page: 1, per_page: 25, total_count: 412, total_pages: 17 },
+        })
       )
     );
     renderWithProviders(<Customers />);
@@ -41,15 +38,12 @@ describe('<Customers />', () => {
       email: `customer${index + 1}@example.com`,
     }));
     server.use(
-      rest.get(`${API}/customers`, (req, res, ctx) => {
-        const page = Number(req.url.searchParams.get('page')) || 1;
-        return res(
-          ctx.status(200),
-          ctx.json({
-            customers: all.slice((page - 1) * 25, page * 25),
-            meta: { page, per_page: 25, total_count: 30, total_pages: 2 },
-          })
-        );
+      http.get(`${API}/customers`, ({ request }) => {
+        const page = Number(new URL(request.url).searchParams.get('page')) || 1;
+        return HttpResponse.json({
+          customers: all.slice((page - 1) * 25, page * 25),
+          meta: { page, per_page: 25, total_count: 30, total_pages: 2 },
+        });
       })
     );
     const user = userEvent.setup();
@@ -67,7 +61,7 @@ describe('<Customers />', () => {
   });
 
   it('offers a retry when the API is down', async () => {
-    server.use(rest.get(`${API}/customers`, (_req, res, ctx) => res(ctx.status(503))));
+    server.use(http.get(`${API}/customers`, () => new HttpResponse(null, { status: 503 })));
     renderWithProviders(<Customers />);
 
     expect(await screen.findByRole('alert')).toBeInTheDocument();

@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import userEvent from '@testing-library/user-event';
 import NewItem from './NewItem';
 import { server } from '../test/server';
@@ -24,9 +24,9 @@ describe('<NewItem />', () => {
   it('posts what the API expects, as numbers', async () => {
     let body;
     server.use(
-      rest.post(`${API}/items`, async (req, res, ctx) => {
-        body = await req.json();
-        return res(ctx.status(201), ctx.json({ id: 8, ...body }));
+      http.post(`${API}/items`, async ({ request }) => {
+        body = await request.json();
+        return HttpResponse.json({ id: 8, ...body }, { status: 201 });
       })
     );
     const user = userEvent.setup();
@@ -60,8 +60,8 @@ describe('<NewItem />', () => {
 
   it('stays on the form and shows why when the API rejects the item', async () => {
     server.use(
-      rest.post(`${API}/items`, (_req, res, ctx) =>
-        res(ctx.status(422), ctx.json({ errors: ['Name has already been taken'] }))
+      http.post(`${API}/items`, () =>
+        HttpResponse.json({ errors: ['Name has already been taken'] }, { status: 422 })
       )
     );
     const user = userEvent.setup();
