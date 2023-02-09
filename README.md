@@ -22,7 +22,7 @@ React 18, React Router 6, React Bootstrap, axios, Formik/Yup. Built with Vite; t
 
 ## Setup
 
-Node 20.19+ or 22.12+ is required (Vite 8).
+Node 22 is required (`.nvmrc`).
 
 ```bash
 npm install

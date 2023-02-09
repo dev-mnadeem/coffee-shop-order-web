@@ -2,7 +2,7 @@
 
 # ---- build -----------------------------------------------------------------
 # The bundle is produced once, by a toolchain that never ships.
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 
 WORKDIR /app
 
@@ -22,9 +22,7 @@ RUN npm run build
 
 # ---- runtime ---------------------------------------------------------------
 # Static files only: no Node, no npm, nothing from the build stage but /dist.
-FROM nginx:1.27-alpine AS runtime
-
-RUN apk add --no-cache curl
+FROM nginx:1.30-alpine AS runtime
 
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker/security-headers.conf /etc/nginx/snippets/security-headers.conf
@@ -37,7 +35,7 @@ COPY --from=build /app/dist /usr/share/nginx/html
 RUN chmod +x /docker-entrypoint.d/99-app-config.sh \
     && sed -i 's|listen  *80;|listen 8080;|' /etc/nginx/conf.d/default.conf \
     && sed -i '/^user /d' /etc/nginx/nginx.conf \
-    && sed -i 's|/var/run/nginx.pid|/tmp/nginx.pid|' /etc/nginx/nginx.conf \
+    && sed -i 's|^pid .*;|pid /tmp/nginx.pid;|' /etc/nginx/nginx.conf \
     && chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /etc/nginx/conf.d
 
 USER nginx
@@ -45,6 +43,6 @@ USER nginx
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -fsS http://localhost:8080/ >/dev/null || exit 1
+    CMD wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
