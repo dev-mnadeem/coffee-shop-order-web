@@ -16,12 +16,12 @@ export default function AppNav() {
   return (
     <Navbar expand="md" variant="dark" className="app-nav py-3">
       <Container>
-        <Navbar.Brand as={NavLink} to="/">
-          ☕ Agnos Coffee
+        <Navbar.Brand as={NavLink} to="/" className="app-nav__brand">
+          Agnos <span>Coffee</span>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="app-nav-links" />
         <Navbar.Collapse id="app-nav-links">
-          <Nav className="ms-auto gap-1">
+          <Nav className="ms-auto gap-1" aria-label="Main">
             {LINKS.map((link) => (
               <Nav.Link key={link.to} as={NavLink} to={link.to} end={link.end}>
                 {link.label}

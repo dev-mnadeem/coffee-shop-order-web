@@ -60,4 +60,12 @@ describe('<App />', () => {
     renderApp('/espresso-machine');
     expect(await screen.findByText(/not on the menu/i)).toBeInTheDocument();
   });
+
+  it('lets keyboard users skip the navigation', async () => {
+    renderApp();
+    const skip = screen.getByRole('link', { name: 'Skip to content' });
+    expect(skip).toHaveAttribute('href', '#main');
+    expect(screen.getByRole('main')).toHaveAttribute('id', 'main');
+    await screen.findByRole('heading', { name: 'A day at the coffee shop' });
+  });
 });

@@ -20,8 +20,11 @@ export default function App() {
   return (
     <MenuProvider>
       <div className="app-shell">
+        <a className="skip-link" href="#main">
+          Skip to content
+        </a>
         <AppNav />
-        <main className="app-main">
+        <main className="app-main" id="main" tabIndex={-1}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/items" element={<Items />} />
