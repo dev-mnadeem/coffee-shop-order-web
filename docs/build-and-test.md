@@ -1,69 +1,43 @@
-# Build, test and bundle figures
+# Build and test figures
 
-Captured on 2026-09-25 on Node v22.22.3 / npm 10.9.8. Every block is literal
-terminal output.
+Captured on 2026-11-09 in a `node:22-bookworm` container (Node v22.23.4, npm 10.9.9). Tests and the build ran with `--network none`.
 
-## Test suite
+## Tests
 
 ```console
-$ npm run test:ci
+$ npm test
 
-PASS src/api/collection.test.js
-PASS src/hooks/useAsync.test.jsx
-PASS src/api/client.test.js
-PASS src/components/ItemThumbnail.test.jsx
-PASS src/api/orders.test.js
-PASS src/domain/pricing.test.js
-PASS src/domain/money.test.js
-PASS src/screens/Customers.test.jsx
-PASS src/screens/Items.test.jsx
-PASS src/App.test.jsx
-PASS src/screens/NewItem.test.jsx
-PASS src/screens/Order.test.jsx
-
-Test Suites: 12 passed, 12 total
-Tests:       70 passed, 70 total
-Snapshots:   0 total
-Time:        3.095 s
-Ran all test suites.
+ Test Files  13 passed (13)
+      Tests  79 passed (79)
 ```
 
-Before this pass there was one test file -- Create React App's default, asserting
-the page contains "learn react" -- and it did not run at all (see
-[bug-reproductions.md](bug-reproductions.md), sections 1 and 2).
+Every request in the suite goes to an `msw` mock of the Rails API (`src/test/handlers.js`) with `onUnhandledRequest: 'error'`, so no test can reach a real server.
 
-Every test runs against an `msw` mock of the Rails API configured with
-`onUnhandledRequest: 'error'`, so nothing in the suite can reach a real server.
+| Area                                | File                                                     |
+| ----------------------------------- | -------------------------------------------------------- |
+| Pricing pipeline and rounding       | `src/domain/pricing.test.js`, `src/domain/money.test.js` |
+| Stock check per item across lines   | `src/domain/stock.test.js`                               |
+| Pagination, error mapping, payloads | `src/api/*.test.js`                                      |
+| Loading/success/error, superseding  | `src/hooks/useAsync.test.jsx`                            |
+| Screens through the mocked API      | `src/screens/*.test.jsx`, `src/App.test.jsx`             |
+| Item tiles                          | `src/components/ItemThumbnail.test.jsx`                  |
 
 ## Coverage
 
 ```console
-$ npx react-scripts test --watchAll=false --coverage
+$ npm run coverage
 
---------------------|---------|----------|---------|---------|
-File                | % Stmts | % Branch | % Funcs | % Lines |
---------------------|---------|----------|---------|---------|
-All files           |   95.69 |    84.03 |    94.3 |   97.56 |
- src/api            |   91.66 |    91.93 |   95.45 |      96 |
- src/components     |     100 |    81.33 |     100 |     100 |
- src/context        |   95.23 |    64.28 |     100 |     100 |
- src/domain         |   98.21 |       80 |     100 |     100 |
- src/hooks          |   97.05 |    78.94 |     100 |     100 |
- src/screens        |   93.25 |    94.11 |   83.78 |   94.18 |
---------------------|---------|----------|---------|---------|
+Statements   : 95.62% ( 328/343 )
+Branches     : 88.37% ( 228/258 )
+Functions    : 94.73% ( 126/133 )
+Lines        : 97.65% ( 291/298 )
 ```
-
-(Abridged to the directory rows; the per-file rows are in the full output.)
 
 ## Lint and formatting
 
 ```console
-$ npm run lint
-$ echo $?
-0
-
-$ npx prettier --check src
-Checking formatting...
+$ npm run lint          # exit 0, no warnings (--max-warnings=0)
+$ npm run format:check
 All matched files use Prettier code style!
 ```
 
@@ -72,60 +46,21 @@ All matched files use Prettier code style!
 ```console
 $ npm run build
 
-Creating an optimized production build...
-Compiled successfully.
-
-File sizes after gzip:
-
-  109.08 kB  build/static/js/main.a4252f9e.js
-  29.16 kB   build/static/css/main.98c8f402.css
+dist/index.html                    1.27 kB │ gzip:   0.63 kB
+dist/assets/coffee-Beit5jJN.jpg   54.36 kB
+dist/assets/index-B6zvn0Py.css   235.52 kB │ gzip:  32.41 kB
+dist/assets/index-CbpHVAxm.js    384.71 kB │ gzip: 126.27 kB
 ```
 
-### Bundle: before and after
+Only Bootstrap's CSS is imported. `react-bootstrap` implements the component behaviour itself, so Bootstrap's JavaScript bundle and Popper are not shipped.
 
-The "before" figure was taken the moment the repository first compiled -- with
-the directory layout corrected and nothing else changed -- so it measures the
-original code, not a broken tree:
+## Dependencies
 
 ```console
-File sizes after gzip:
-
-  135.19 kB  build/static/js/main.de8fe523.js
-  28.39 kB   build/static/css/main.4d577064.css
-  1.78 kB    build/static/js/787.9dba455a.chunk.js
+$ npm audit
+found 0 vulnerabilities
 ```
 
-|        | JS (gzip)              | CSS (gzip) | extra chunk |
-| ------ | ---------------------- | ---------- | ----------- |
-| Before | 135.19 kB              | 28.39 kB   | 1.78 kB     |
-| After  | 109.08 kB              | 29.16 kB   | —           |
-| Change | **−26.11 kB (−19.3%)** | +0.77 kB   | −1.78 kB    |
+## Container
 
-Where the JavaScript went:
-
-- `src/index.js` imported `bootstrap/dist/js/bootstrap.bundle.min` — Bootstrap's
-  own component runtime plus Popper. `react-bootstrap` implements those
-  behaviours in React and does not use it; nothing else referenced it.
-- `reportWebVitals` and the `web-vitals` package were Create React App
-  scaffolding that never reported anywhere. Removing them also removed the
-  1.78 kB lazily-loaded chunk.
-- `cors` — Express middleware — was in `dependencies`. It was never imported, so
-  it cost nothing at runtime, but it was removed as well.
-
-The CSS grew by 0.77 kB: that is `src/styles/theme.css`, which replaced Create
-React App's unused `App.css`.
-
-## Repository weight
-
-Deleting `public/fonts/` — FontAwesome files belonging to a different
-application, referenced by nothing (see
-[bug-reproductions.md](bug-reproductions.md), section 9) — removed 2.74 MB of
-tracked binaries, measured against the commit that introduced them:
-
-```console
-$ git ls-tree -r -l 010c0ce public/fonts \
-    | awk '{s+=$4; n+=1} END {printf "%d files, %.2f MB\n", n, s/1024/1024}'
-16 files, 2.74 MB
-```
-
-(Fifteen font files plus the stray README.)
+`docker compose up --build` builds the image, the health check reports `healthy`, and nginx runs as the `nginx` user. `/`, `/order` and `/config.js` all return 200 with `X-Content-Type-Options`, `X-Frame-Options` and `Referrer-Policy`. Files under `/assets/` are sent with `Cache-Control: public, immutable`.

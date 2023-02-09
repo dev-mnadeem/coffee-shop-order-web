@@ -20,7 +20,8 @@ import sharp from 'sharp';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT = resolve(HERE, '..', 'docs', 'screenshots');
 const BASE = process.argv[2] || 'http://localhost:3000';
-const VIEWPORT = { width: 1440, height: 900 };
+const DESKTOP = { width: 1440, height: 900 };
+const MOBILE = { width: 390, height: 844 };
 
 const seed = JSON.parse(readFileSync(resolve(HERE, '..', 'src', 'test', 'seed.json'), 'utf8'));
 
@@ -32,13 +33,7 @@ const envelope = (resource, records) => ({
 const json = (route, body, status = 200) =>
   route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) });
 
-async function main() {
-  await mkdir(OUT, { recursive: true });
-
-  const browser = await chromium.launch();
-  const context = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 1 });
-  const page = await context.newPage();
-
+async function mockApi(page) {
   await page.route('**/api/v1/items**', (route) =>
     route.request().method() === 'GET'
       ? json(route, envelope('items', seed.items))
@@ -51,13 +46,23 @@ async function main() {
     json(route, envelope('customers', seed.customers))
   );
   await page.route('**/api/v1/orders**', (route) => json(route, seed.placedOrder, 201));
+}
+
+async function main() {
+  await mkdir(OUT, { recursive: true });
+
+  const browser = await chromium.launch();
+  const context = await browser.newContext({ viewport: DESKTOP, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  await mockApi(page);
 
   // Screenshots of a photographic page run to half a megabyte of true colour
   // PNG. A 256-colour palette is visually indistinguishable at this size and
   // keeps the repository light, so the bytes that land in git are quantized.
-  const shot = async (name) => {
-    await page.waitForTimeout(350);
-    const raw = await page.screenshot();
+  const shot = async (name, target = page) => {
+    await target.evaluate(() => document.fonts.ready);
+    await target.waitForTimeout(350);
+    const raw = await target.screenshot();
     const file = resolve(OUT, `${name}.png`);
     const { size } = await sharp(raw).png({ palette: true, effort: 10 }).toFile(file);
     console.log(`captured docs/screenshots/${name}.png (${Math.round(size / 1024)} KB)`);
@@ -89,6 +94,28 @@ async function main() {
   await page.getByRole('button', { name: /place order/i }).click();
   await page.getByRole('dialog').waitFor();
   await shot('order-confirmed');
+
+  // 5-6. The same shop on a phone.
+  const phone = await browser.newContext({
+    viewport: MOBILE,
+    deviceScaleFactor: 1,
+    isMobile: true,
+    hasTouch: true,
+  });
+  const mobile = await phone.newPage();
+  await mockApi(mobile);
+  await mobile.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+  await mobile.getByText('Butter Croissant + Flat White').waitFor();
+  await shot('home-mobile', mobile);
+
+  await mobile.goto(`${BASE}/order`, { waitUntil: 'networkidle' });
+  await mobile.getByLabel('Name').fill('Ada Lovelace');
+  await mobile.getByLabel('Email').fill('ada@example.com');
+  await mobile.getByLabel('Item').selectOption('2');
+  await mobile.getByRole('button', { name: /add another item/i }).click();
+  await mobile.getByLabel('Item').nth(1).selectOption('4');
+  await mobile.getByText('$6.78').waitFor();
+  await shot('order-mobile', mobile);
 
   await browser.close();
 }
