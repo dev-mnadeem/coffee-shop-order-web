@@ -1,7 +1,6 @@
 import { Button, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-/** Any URL the router does not know. Previously such a URL rendered a bare navbar. */
 export default function NotFound() {
   return (
     <Container className="py-5">

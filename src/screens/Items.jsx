@@ -7,13 +7,7 @@ import StateView from '../components/StateView';
 import { deleteItem } from '../api/items';
 import { useMenu } from '../context/MenuProvider';
 
-/**
- * The menu, as a grid of cards.
- *
- * Deleting used to read `.status` off whatever the API layer returned, which
- * was `undefined` whenever the request failed -- so a failed delete crashed
- * the page instead of reporting itself.
- */
+/** The menu, as a grid of cards. A failed delete is reported above the grid. */
 export default function Items() {
   const { status, error, items, discounts, reload, removeItem } = useMenu();
   const [deletingId, setDeletingId] = useState(null);

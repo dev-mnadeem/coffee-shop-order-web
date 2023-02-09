@@ -46,8 +46,6 @@ describe('fetchPage', () => {
 
 describe('fetchAll', () => {
   it('follows meta.total_pages instead of stopping at the first page', async () => {
-    // The original client asked for /items with no parameters and read only the
-    // array, so item 26 onwards silently vanished from the menu.
     const all = Array.from({ length: 30 }, (_, index) => ({
       id: index + 1,
       name: `Item ${index + 1}`,

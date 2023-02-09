@@ -44,8 +44,6 @@ describe('errors', () => {
       )
     );
 
-    // The version this replaces called alert() and returned undefined, so the
-    // caller crashed on `response.data` before anyone saw the message.
     await expect(get('/items')).rejects.toThrow(ApiError);
     await expect(get('/items')).rejects.toThrow('Item 99 does not exist');
   });

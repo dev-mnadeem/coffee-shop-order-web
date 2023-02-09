@@ -62,8 +62,6 @@ describe('<Order />', () => {
   });
 
   it('shows a rejected order instead of taking the page down', async () => {
-    // The original crashed here: the API layer alerted and returned undefined,
-    // then the summary modal dereferenced `orderDetail.customer.name`.
     server.use(
       rest.post(`${API}/orders`, (_req, res, ctx) =>
         res(ctx.status(422), ctx.json({ errors: ['Not enough Butter Croissant in stock'] }))

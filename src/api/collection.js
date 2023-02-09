@@ -4,9 +4,8 @@ import { get } from './client';
  * The API paginates every collection (25 rows by default) and returns
  * `{ <resource>: [...], meta: { page, per_page, total_count, total_pages } }`.
  *
- * The first version of this client sent no page parameters and read only the
- * array, so a menu with a 26th item silently lost it. These helpers make the
- * pagination explicit: `fetchPage` for a screen that shows one page,
+ * Reading only the first page would silently drop a 26th menu item, so these
+ * helpers make pagination explicit: `fetchPage` for a screen that shows one page,
  * `fetchAll` for the short, bounded collections the till needs in full
  * (the menu and the discount table) with a hard cap so a runaway API can
  * never spin the browser.

@@ -1,9 +1,7 @@
 /**
  * A deterministic tile for a menu item.
  *
- * The original card put the same watermarked stock photograph on every item,
- * which made a seven-item menu look like one item repeated. There are no real
- * product photographs to use, so instead each item gets a monogram on a colour
+ * There are no product photographs, so each item gets a monogram on a colour
  * derived from its own name: stable across reloads, distinct between items and
  * nothing to license.
  */

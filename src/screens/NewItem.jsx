@@ -36,12 +36,8 @@ const FIELDS = [
 ];
 
 /**
- * Add an item to the menu.
- *
- * The version this replaces awaited a create that could not fail -- the API
- * layer swallowed errors -- and navigated away regardless, so a rejected item
- * looked exactly like a saved one. Now a failure stays on the form and shows
- * what the API objected to.
+ * Add an item to the menu. A rejected item stays on the form with the API's
+ * reason, rather than navigating away as if it had been saved.
  */
 export default function NewItem() {
   const navigate = useNavigate();

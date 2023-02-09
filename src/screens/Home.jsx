@@ -4,11 +4,7 @@ import { COFFEE } from '../utils/assets';
 import { useMenu } from '../context/MenuProvider';
 import { formatMoney, formatRate } from '../domain/money';
 
-/**
- * The landing screen: what the shop sells, what is on offer today, and the
- * one button that matters. It replaces a page whose entire content was a
- * bare "Place Order" hyperlink inside three empty grid columns.
- */
+/** The landing screen: what the shop sells, what is on offer today, and the way into the till. */
 export default function Home() {
   const { items, discounts, status } = useMenu();
   const byId = new Map(items.map((item) => [Number(item.id), item]));

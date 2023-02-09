@@ -1,11 +1,8 @@
 import { Button, Spinner } from 'react-bootstrap';
 
 /**
- * Loading, error and empty, in one place.
- *
- * The screens this replaced rendered the literal string "No Data Retrieved"
- * for all three, so a shop with no items looked exactly like a shop whose API
- * was down. Now a failure says what failed and offers a retry.
+ * Loading, error and empty, in one place, so an empty shop never looks like
+ * a shop whose API is down. A failure says what failed and offers a retry.
  */
 export default function StateView({
   status,

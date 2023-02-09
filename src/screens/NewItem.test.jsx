@@ -59,8 +59,6 @@ describe('<NewItem />', () => {
   });
 
   it('stays on the form and shows why when the API rejects the item', async () => {
-    // The original navigated to /items regardless, so a rejected item looked
-    // exactly like a saved one.
     server.use(
       rest.post(`${API}/items`, (_req, res, ctx) =>
         res(ctx.status(422), ctx.json({ errors: ['Name has already been taken'] }))

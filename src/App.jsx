@@ -28,7 +28,7 @@ export default function App() {
             <Route path="/items/new" element={<NewItem />} />
             <Route path="/order" element={<Order />} />
             <Route path="/customers" element={<Customers />} />
-            {/* The first version routed this screen at /customer and /new_item. */}
+            {/* Older links used /customer and /new_item. */}
             <Route path="/customer" element={<Navigate to="/customers" replace />} />
             <Route path="/new_item" element={<Navigate to="/items/new" replace />} />
             <Route path="*" element={<NotFound />} />

@@ -22,9 +22,6 @@ describe('<App />', () => {
   });
 
   it('navigates without reloading the document', async () => {
-    // The original navbar used <Navbar.Brand href="items">, which threw the
-    // whole React tree away on every click and resolved relative to the
-    // current path.
     const user = userEvent.setup();
     renderApp();
     await screen.findByRole('heading', { name: 'A day at the coffee shop' });
@@ -36,8 +33,7 @@ describe('<App />', () => {
   });
 
   it('fetches the menu once for the whole session, not once per screen', async () => {
-    // Items and Order both need the menu; the original fetched it again on
-    // every navigation, with a flash of "No Data Retrieved" in between.
+    // Items and Order both read the menu from MenuProvider, fetched once.
     const user = userEvent.setup();
     renderApp();
     await screen.findByRole('heading', { name: 'A day at the coffee shop' });

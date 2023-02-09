@@ -8,10 +8,8 @@ import useAsync from '../hooks/useAsync';
  * The menu -- items plus the paired-item offers -- fetched once and shared.
  *
  * Both the Items screen and the Order screen need the item list, and the
- * order form also needs the discount table to price a basket. Fetching them
- * per screen meant four requests for two pieces of data and a visible flash
- * of "No Data Retrieved" on every navigation. One provider, one fetch, and
- * the pricing engine is memoised alongside the data it closes over.
+ * order form also needs the discount table to price a basket. One provider
+ * means one fetch per session instead of one per navigation.
  */
 
 const MenuContext = createContext(null);

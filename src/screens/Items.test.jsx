@@ -43,8 +43,6 @@ describe('<Items />', () => {
   });
 
   it('reports a failed delete instead of crashing on an undefined response', async () => {
-    // Reproduces the original bug: the API layer swallowed the error and the
-    // screen then read `.status` off undefined, taking the page down.
     server.use(
       rest.delete(`${API}/items/:id`, (_req, res, ctx) =>
         res(ctx.status(422), ctx.json({ errors: ['Item is on an open order'] }))

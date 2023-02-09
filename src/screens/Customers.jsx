@@ -8,12 +8,8 @@ import useAsync from '../hooks/useAsync';
 const PER_PAGE = 25;
 
 /**
- * Everyone who has ever ordered.
- *
- * Unlike the menu this list grows without bound, so it is the one screen that
- * pages: the API has always returned `meta.total_pages` and the first version
- * of this client ignored it, quietly showing only the newest 25 customers
- * with no hint there were more.
+ * Everyone who has ever ordered. Unlike the menu this list grows without
+ * bound, so it is the one screen that pages through `meta.total_pages`.
  */
 export default function Customers() {
   const [page, setPage] = useState(1);

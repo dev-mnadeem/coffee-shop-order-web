@@ -7,9 +7,6 @@ const LOW_STOCK_THRESHOLD = 25;
 /**
  * One item on the menu: what it costs, what it is taxed at, how many are left
  * and which other item takes money off it.
- *
- * Stock and the paired offer both come from the API and neither was shown
- * before, which made the card a name and two raw numbers.
  */
 export default function ItemCard({ item, pairings = [], onDelete, isDeleting = false }) {
   const stock = Number(item.available_quantity);

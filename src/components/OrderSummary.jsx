@@ -2,12 +2,8 @@ import { Button, Modal, Table } from 'react-bootstrap';
 import { formatMoney, formatRate } from '../domain/money';
 
 /**
- * The receipt shown once the API has accepted an order.
- *
- * Every field is read defensively: the version this replaces dereferenced
- * `orderDetail.customer.name` and `orderDetail.total_amount.toFixed(2)`
- * unconditionally, so any rejected order -- a sold-out item, say -- took the
- * whole page down with "Cannot read properties of undefined".
+ * The receipt shown once the API has accepted an order. Fields are read
+ * defensively so a partial response renders dashes rather than throwing.
  */
 export default function OrderSummary({ order, show, onClose, onNewOrder }) {
   const customer = (order && order.customer) || {};

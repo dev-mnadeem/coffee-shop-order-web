@@ -9,12 +9,8 @@ const LINKS = [
 ];
 
 /**
- * The top bar.
- *
- * Uses `NavLink`, not `href`. The original used `<Navbar.Brand href="items">`,
- * which made every click a full document load -- the whole bundle re-fetched,
- * React state thrown away -- and, being relative, resolved differently
- * depending on the page you clicked it from.
+ * The top bar. Router links, not `href`, so navigating keeps the menu cache
+ * in MenuProvider instead of reloading the document.
  */
 export default function AppNav() {
   return (

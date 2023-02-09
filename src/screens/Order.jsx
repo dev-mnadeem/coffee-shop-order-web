@@ -39,12 +39,8 @@ const ValidationSchema = Yup.object().shape({
 });
 
 /**
- * The till.
- *
- * The form itself is close to the original -- Formik with a `FieldArray` of
- * lines was the right call -- but the money is new: `src/domain/pricing.js`
- * runs the same tax-then-paired-discount pipeline the API runs, so the total
- * is visible before the order is posted rather than only afterwards.
+ * The till. `src/domain/pricing.js` runs the same tax-then-paired-discount
+ * pipeline the API runs, so the total is visible before the order is posted.
  */
 export default function Order() {
   const { status, error, items, discounts, pricing, reload } = useMenu();
