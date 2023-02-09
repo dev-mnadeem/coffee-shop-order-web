@@ -12,16 +12,16 @@ RUN npm ci
 
 COPY . .
 
-# A create-react-app build inlines process.env.REACT_APP_* at compile time.
+# Vite inlines import.meta.env.VITE_* at compile time.
 # A default is baked in here for convenience, but the container entrypoint
 # rewrites /usr/share/nginx/html/config.js at start-up, and that wins -- so
 # this image can be promoted between environments without a rebuild.
-ARG REACT_APP_API_BASE_URL=http://localhost:3001/api/v1
-ENV REACT_APP_API_BASE_URL=$REACT_APP_API_BASE_URL
+ARG VITE_API_BASE_URL=http://localhost:3001/api/v1
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN npm run build
 
 # ---- runtime ---------------------------------------------------------------
-# Static files only: no Node, no npm, nothing from the build stage but /build.
+# Static files only: no Node, no npm, nothing from the build stage but /dist.
 FROM nginx:1.27-alpine AS runtime
 
 RUN apk add --no-cache curl
@@ -29,7 +29,7 @@ RUN apk add --no-cache curl
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker/security-headers.conf /etc/nginx/snippets/security-headers.conf
 COPY docker/entrypoint.sh /docker-entrypoint.d/99-app-config.sh
-COPY --from=build /app/build /usr/share/nginx/html
+COPY --from=build /app/dist /usr/share/nginx/html
 
 # nginx:alpine ships an unprivileged `nginx` user. The few paths the server
 # writes to are handed over, the port is moved above 1024, and the process

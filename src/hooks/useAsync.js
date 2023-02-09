@@ -5,12 +5,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 /**
  * Run an async function and expose its state as `{ status, data, error }`.
  *
- * Every screen in this app needs the same four states -- idle, loading,
- * loaded, failed -- and the original code had none of them: it called
- * `.then(setState)` and rendered "No Data Retrieved" whether the list was
- * genuinely empty or the request had blown up. One hook fixes that
- * everywhere, and it aborts in flight so a screen unmounted mid-request
- * neither warns nor overwrites fresher state.
+ * Every screen needs the same four states -- idle, loading, loaded, failed --
+ * so they live in one hook. It aborts in flight, so a screen unmounted
+ * mid-request neither warns nor overwrites fresher state.
  *
  * `fn` is a dependency: when it changes the hook re-runs, which is how the
  * customers screen turns a page. Callers must therefore wrap it in
@@ -22,45 +19,64 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  * @param {{ immediate?: boolean, initialData?: T }} [options]
  */
 export default function useAsync(fn, { immediate = true, initialData = undefined } = {}) {
-  const [status, setStatus] = useState(immediate ? 'loading' : 'idle');
-  const [data, setData] = useState(initialData);
-  const [error, setError] = useState(null);
-
+  const [state, setState] = useState({
+    source: null,
+    status: immediate ? 'loading' : 'idle',
+    data: initialData,
+    error: null,
+  });
   const controllerRef = useRef(null);
-  const mountedRef = useRef(true);
 
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
+  // State is only written after the await, never synchronously, so calling
+  // this from an effect does not cascade renders.
+  const execute = useCallback(
+    async (controller) => {
       if (controllerRef.current) controllerRef.current.abort();
-    };
-  }, []);
-
-  const run = useCallback(async () => {
-    if (controllerRef.current) controllerRef.current.abort();
-    const controller = new AbortController();
-    controllerRef.current = controller;
-
-    setStatus('loading');
-    setError(null);
-    try {
-      const result = await fn({ signal: controller.signal });
-      if (!mountedRef.current || controller.signal.aborted) return undefined;
-      setData(result);
-      setStatus('success');
-      return result;
-    } catch (caught) {
-      if (!mountedRef.current || controller.signal.aborted) return undefined;
-      setError(caught);
-      setStatus('error');
-      return undefined;
-    }
-  }, [fn]);
+      controllerRef.current = controller;
+      try {
+        const result = await fn({ signal: controller.signal });
+        if (controller.signal.aborted) return undefined;
+        setState((current) => ({
+          ...current,
+          source: fn,
+          status: 'success',
+          data: result,
+          error: null,
+        }));
+        return result;
+      } catch (caught) {
+        if (controller.signal.aborted) return undefined;
+        setState((current) => ({ ...current, source: fn, status: 'error', error: caught }));
+        return undefined;
+      }
+    },
+    [fn]
+  );
 
   useEffect(() => {
-    if (immediate) run();
-  }, [immediate, run]);
+    if (!immediate) return undefined;
+    const controller = new AbortController();
+    execute(controller);
+    return () => controller.abort();
+  }, [immediate, execute]);
 
-  return { status, data, error, reload: run, setData };
+  const reload = useCallback(() => {
+    setState((current) => ({ ...current, status: 'loading', error: null }));
+    return execute(new AbortController());
+  }, [execute]);
+
+  const setData = useCallback(
+    (update) =>
+      setState((current) => ({
+        ...current,
+        data: typeof update === 'function' ? update(current.data) : update,
+      })),
+    []
+  );
+
+  // A new `fn` (the customers screen turning a page) is loading until it settles.
+  const status =
+    immediate && state.source !== fn && state.status !== 'idle' ? 'loading' : state.status;
+
+  return { status, data: state.data, error: state.error, reload, setData };
 }

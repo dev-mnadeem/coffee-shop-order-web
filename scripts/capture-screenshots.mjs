@@ -1,8 +1,8 @@
 /**
  * Capture the screenshots in docs/screenshots/.
  *
- *   npm run build && npx serve -s build -l 8541   # or: npm start
- *   node scripts/capture-screenshots.mjs http://localhost:8541
+ *   npm run build && npm run preview   # or: npm start
+ *   node scripts/capture-screenshots.mjs http://localhost:3000
  *
  * The backend is never contacted. Every /api/v1 request is fulfilled from
  * src/test/seed.json -- the same rows the test suite asserts against and the

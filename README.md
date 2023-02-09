@@ -4,8 +4,8 @@ React frontend for a small coffee shop ordering system. It shows the menu, lets 
 
 The backend is a separate Rails API (`agnos-coffee-shop-be`). This repo only contains the client and talks to `/api/v1`.
 
-| Menu | Order with a paired discount |
-| --- | --- |
+| Menu                               | Order with a paired discount                       |
+| ---------------------------------- | -------------------------------------------------- |
 | ![Menu](docs/screenshots/menu.png) | ![Order](docs/screenshots/order-with-discount.png) |
 
 ## Screens
@@ -18,11 +18,11 @@ The backend is a separate Rails API (`agnos-coffee-shop-be`). This repo only con
 
 ## Tech
 
-React 18, React Router 6, React Bootstrap, axios, Formik/Yup. Tests use Jest, React Testing Library and msw. Created with Create React App.
+React 18, React Router 6, React Bootstrap, axios, Formik/Yup. Built with Vite; tests use Vitest, React Testing Library and msw.
 
 ## Setup
 
-Node 18+ is required.
+Node 20.19+ or 22.12+ is required (Vite 8).
 
 ```bash
 npm install
@@ -31,14 +31,14 @@ npm start
 
 The app runs on http://localhost:3000 and expects the API at `http://localhost:3001/api/v1`. Run the backend and its seed (`rails db:seed`) to get the same menu and offers as in the screenshots. If the API isn't running, each screen shows an error with a Retry button.
 
-To change the API URL or timeout, copy `.env.example` to `.env.local` and edit `REACT_APP_API_BASE_URL` / `REACT_APP_API_TIMEOUT_MS`. These values end up in the public bundle, so don't put secrets there.
+To change the API URL or timeout, copy `.env.example` to `.env.local` and edit `VITE_API_BASE_URL` / `VITE_API_TIMEOUT_MS`. These values end up in the public bundle, so don't put secrets there.
 
 There's also a Dockerfile (build with Node, serve with nginx) and `docker-compose.yml`. In the container the API URL can be set at startup with `API_BASE_URL`.
 
 ## Tests
 
 ```bash
-npm run test:ci
+npm test
 npm run lint
 ```
 

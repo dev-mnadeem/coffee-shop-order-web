@@ -140,7 +140,6 @@ export default function Order() {
                           {({ push, remove }) => (
                             <>
                               {values.order_items.map((line, index) => (
-                                /* eslint-disable-next-line react/no-array-index-key */
                                 <div className="basket-line" key={index}>
                                   <div>
                                     <label

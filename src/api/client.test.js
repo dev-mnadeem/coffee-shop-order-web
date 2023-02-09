@@ -10,31 +10,29 @@ describe('resolveBaseUrl', () => {
   });
 
   it('reads the environment and strips the trailing slash', () => {
-    expect(resolveBaseUrl({ REACT_APP_API_BASE_URL: 'https://api.example.com/api/v1/' }, {})).toBe(
+    expect(resolveBaseUrl({ VITE_API_BASE_URL: 'https://api.example.com/api/v1/' }, {})).toBe(
       'https://api.example.com/api/v1'
     );
   });
 
   it('ignores an env var that is set but blank', () => {
-    expect(resolveBaseUrl({ REACT_APP_API_BASE_URL: '   ' }, {})).toBe(
-      'http://localhost:3001/api/v1'
-    );
+    expect(resolveBaseUrl({ VITE_API_BASE_URL: '   ' }, {})).toBe('http://localhost:3001/api/v1');
   });
 
   it('lets runtime config from public/config.js override the baked-in value', () => {
     // This is what makes one Docker image serve more than one environment.
     expect(
       resolveBaseUrl(
-        { REACT_APP_API_BASE_URL: 'https://built-in.example.com/api/v1' },
+        { VITE_API_BASE_URL: 'https://built-in.example.com/api/v1' },
         { apiBaseUrl: 'https://staging.example.com/api/v1' }
       )
     ).toBe('https://staging.example.com/api/v1');
   });
 
   it('falls back to the build-time value when runtime config is empty', () => {
-    expect(
-      resolveBaseUrl({ REACT_APP_API_BASE_URL: 'https://built-in.example.com/api/v1' }, {})
-    ).toBe('https://built-in.example.com/api/v1');
+    expect(resolveBaseUrl({ VITE_API_BASE_URL: 'https://built-in.example.com/api/v1' }, {})).toBe(
+      'https://built-in.example.com/api/v1'
+    );
   });
 });
 

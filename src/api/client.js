@@ -16,8 +16,8 @@ export const DEFAULT_TIMEOUT_MS = 10000;
 /**
  * Where the API is.
  *
- * Runtime configuration wins over build-time: a create-react-app bundle bakes
- * `process.env.*` in at compile time, which would otherwise mean one Docker
+ * Runtime configuration wins over build-time: Vite bakes `import.meta.env.*`
+ * into the bundle at compile time, which would otherwise mean one Docker
  * image per environment. `public/config.js` is rewritten by the container
  * entrypoint, so one image can serve staging and production.
  *
@@ -25,8 +25,8 @@ export const DEFAULT_TIMEOUT_MS = 10000;
  * @param {{ apiBaseUrl?: string }} [runtime]
  * @returns {string} base URL with no trailing slash
  */
-export function resolveBaseUrl(env = process.env, runtime = readRuntimeConfig()) {
-  const configured = ((runtime && runtime.apiBaseUrl) || env.REACT_APP_API_BASE_URL || '').trim();
+export function resolveBaseUrl(env = import.meta.env, runtime = readRuntimeConfig()) {
+  const configured = ((runtime && runtime.apiBaseUrl) || env.VITE_API_BASE_URL || '').trim();
   return (configured || DEFAULT_BASE_URL).replace(/\/+$/, '');
 }
 
@@ -37,7 +37,7 @@ function readRuntimeConfig() {
 
 export const http = axios.create({
   baseURL: resolveBaseUrl(),
-  timeout: Number(process.env.REACT_APP_API_TIMEOUT_MS) || DEFAULT_TIMEOUT_MS,
+  timeout: Number(import.meta.env.VITE_API_TIMEOUT_MS) || DEFAULT_TIMEOUT_MS,
   headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
 });
 
