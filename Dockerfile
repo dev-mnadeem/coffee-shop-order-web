@@ -27,6 +27,7 @@ FROM nginx:1.27-alpine AS runtime
 RUN apk add --no-cache curl
 
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY docker/security-headers.conf /etc/nginx/snippets/security-headers.conf
 COPY docker/entrypoint.sh /docker-entrypoint.d/99-app-config.sh
 COPY --from=build /app/build /usr/share/nginx/html
 

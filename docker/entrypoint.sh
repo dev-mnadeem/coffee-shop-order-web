@@ -10,7 +10,9 @@ CONFIG_FILE=/usr/share/nginx/html/config.js
 API_BASE_URL="${API_BASE_URL:-}"
 
 if [ -n "$API_BASE_URL" ]; then
-  printf 'window.__APP_CONFIG__ = { apiBaseUrl: "%s" };\n' "$API_BASE_URL" > "$CONFIG_FILE"
+  # Escape backslashes and double quotes so the value stays one JS string.
+  ESCAPED=$(printf '%s' "$API_BASE_URL" | sed 's/\\/\\\\/g; s/"/\\"/g')
+  printf 'window.__APP_CONFIG__ = { apiBaseUrl: "%s" };\n' "$ESCAPED" > "$CONFIG_FILE"
   echo "app-config: API base URL set to $API_BASE_URL"
 else
   echo "app-config: API_BASE_URL not set, using the value baked in at build time"
