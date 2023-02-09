@@ -1,0 +1,57 @@
+{
+  "items": [
+    { "id": 1, "name": "Espresso", "price": 2.5, "tax_rate": 5.0, "available_quantity": 200 },
+    { "id": 2, "name": "Flat White", "price": 3.8, "tax_rate": 5.0, "available_quantity": 150 },
+    { "id": 3, "name": "Cold Brew", "price": 4.2, "tax_rate": 5.0, "available_quantity": 80 },
+    {
+      "id": 4,
+      "name": "Butter Croissant",
+      "price": 3.1,
+      "tax_rate": 12.5,
+      "available_quantity": 40
+    },
+    { "id": 5, "name": "Almond Danish", "price": 3.6, "tax_rate": 12.5, "available_quantity": 25 },
+    {
+      "id": 6,
+      "name": "Avocado Sourdough",
+      "price": 7.95,
+      "tax_rate": 12.5,
+      "available_quantity": 30
+    },
+    {
+      "id": 7,
+      "name": "Blueberry Muffin",
+      "price": 2.95,
+      "tax_rate": 12.5,
+      "available_quantity": 35
+    }
+  ],
+  "discounts": [
+    { "id": 1, "item_id": 4, "discount_with_item_id": 2, "percentage": 20.0 },
+    { "id": 2, "item_id": 5, "discount_with_item_id": 1, "percentage": 15.0 },
+    { "id": 3, "item_id": 7, "discount_with_item_id": 3, "percentage": 10.0 }
+  ],
+  "customers": [
+    { "id": 1, "name": "Ada Lovelace", "email": "ada@example.com" },
+    { "id": 2, "name": "Grace Hopper", "email": "grace@example.com" },
+    { "id": 3, "name": "Alan Turing", "email": "alan@example.com" },
+    { "id": 4, "name": "Katherine Johnson", "email": "katherine@example.com" },
+    { "id": 5, "name": "Edsger Dijkstra", "email": "edsger@example.com" }
+  ],
+  "placedOrder": {
+    "id": 1,
+    "total_amount": 6.78,
+    "created_at": "2026-09-24T23:54:54.882Z",
+    "customer": { "id": 1, "name": "Ada Lovelace", "email": "ada@example.com" },
+    "items": [
+      { "id": 2, "name": "Flat White", "price": 3.8, "tax_rate": 5.0, "available_quantity": 149 },
+      {
+        "id": 4,
+        "name": "Butter Croissant",
+        "price": 3.1,
+        "tax_rate": 12.5,
+        "available_quantity": 39
+      }
+    ]
+  }
+}
