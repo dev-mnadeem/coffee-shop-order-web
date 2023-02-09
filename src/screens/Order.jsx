@@ -10,6 +10,7 @@ import StateView from '../components/StateView';
 import { createOrder } from '../api/orders';
 import { useMenu } from '../context/MenuProvider';
 import { activeDiscounts, toBasketLines } from '../domain/pricing';
+import { stockErrors } from '../domain/stock';
 
 const EMPTY_LINE = { item_id: '', quantity: 1 };
 
@@ -82,6 +83,7 @@ export default function Order() {
           <Formik
             initialValues={INITIAL_VALUES}
             validationSchema={ValidationSchema}
+            validate={(values) => stockErrors(values.order_items, items)}
             onSubmit={handleSubmit}
           >
             {({ values, isSubmitting }) => {

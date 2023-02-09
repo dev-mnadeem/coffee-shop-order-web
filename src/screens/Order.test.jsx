@@ -126,3 +126,43 @@ describe('<Order />', () => {
     expect(screen.getByRole('button', { name: /remove line 1/i })).toBeEnabled();
   });
 });
+
+describe('<Order /> stock check', () => {
+  it('stops an order that asks for more than is on the shelf', async () => {
+    let posted = false;
+    server.use(
+      rest.post(`${API}/orders`, (_req, res, ctx) => {
+        posted = true;
+        return res(ctx.status(201), ctx.json({}));
+      })
+    );
+    const user = userEvent.setup();
+    renderWithProviders(<Order />);
+    await screen.findByLabelText('Name');
+
+    await user.type(screen.getByLabelText('Name'), 'Ada Lovelace');
+    await user.type(screen.getByLabelText('Email'), 'ada@example.com');
+    await user.selectOptions(screen.getByLabelText('Item'), '4');
+    await user.clear(screen.getByLabelText('Quantity'));
+    await user.type(screen.getByLabelText('Quantity'), '41');
+    await user.click(screen.getByRole('button', { name: /place order/i }));
+
+    expect(await screen.findByText('Only 40 Butter Croissant left')).toBeInTheDocument();
+    await waitFor(() => expect(posted).toBe(false));
+  });
+
+  it('lists the same item twice without mixing up the totals', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<Order />);
+    await screen.findByLabelText('Name');
+
+    await user.selectOptions(screen.getByLabelText('Item'), '1');
+    await user.click(screen.getByRole('button', { name: /add another item/i }));
+    await user.selectOptions(screen.getAllByLabelText('Item')[1], '1');
+
+    const totals = screen.getByRole('region', { name: 'Order total' });
+    expect(within(totals).getAllByText('1 × Espresso')).toHaveLength(2);
+    // Each line is rounded on its own, as the API does: 2.63 + 2.63.
+    expect(within(totals).getByText('$5.26')).toBeInTheDocument();
+  });
+});

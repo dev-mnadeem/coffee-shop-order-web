@@ -1,5 +1,5 @@
 import { Button } from 'react-bootstrap';
-import { formatMoney, formatRate } from '../domain/money';
+import { formatMoney, formatRate, roundMoney } from '../domain/money';
 import ItemThumbnail from './ItemThumbnail';
 
 const LOW_STOCK_THRESHOLD = 25;
@@ -33,7 +33,8 @@ export default function ItemCard({ item, pairings = [], onDelete, isDeleting = f
         <div className="item-card__meta">
           <span>Tax {formatRate(item.tax_rate)}</span>
           <span>
-            {formatMoney(Number(item.price) * (1 + Number(item.tax_rate) / 100))} with tax
+            {formatMoney(roundMoney(Number(item.price) * (1 + Number(item.tax_rate) / 100)))} with
+            tax
           </span>
         </div>
 

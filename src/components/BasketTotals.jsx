@@ -24,8 +24,10 @@ export default function BasketTotals({ quote, offers = [], isEmpty }) {
       <h2 className="h6 text-uppercase text-secondary mb-3">Order total</h2>
 
       <ul className="list-unstyled mb-3">
-        {quote.lines.map((line) => (
-          <li key={line.itemId} className="totals__row">
+        {quote.lines.map((line, index) => (
+          /* The same item can be on two lines, so the item id is not unique. */
+          /* eslint-disable-next-line react/no-array-index-key */
+          <li key={index} className="totals__row">
             <span>
               {line.quantity} × {line.name}
             </span>
