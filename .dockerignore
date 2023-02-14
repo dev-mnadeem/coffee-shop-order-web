@@ -1,0 +1,16 @@
+.git
+.github
+node_modules
+build
+coverage
+docs
+project_venv
+.env
+.env.*
+!.env.example
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+.vscode
+.idea
