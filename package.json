@@ -52,7 +52,7 @@
   },
   "description": "React storefront and till for the Agnos coffee shop API.",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "jest": {
     "moduleNameMapper": {

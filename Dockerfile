@@ -2,7 +2,7 @@
 
 # ---- build -----------------------------------------------------------------
 # The bundle is produced once, by a toolchain that never ships.
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 
 WORKDIR /app
 
