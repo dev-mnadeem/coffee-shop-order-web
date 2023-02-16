@@ -53,3 +53,7 @@ API calls in tests are mocked with msw using the data in `src/test/seed.json`. M
 - Client and server can round some line totals differently by one cent.
 - No order history screen and no item editing, even though the API supports both.
 - Stock is shown but not checked in the order form.
+
+## Author
+
+[**Muhammad Nadeem**](https://github.com/dev-mnadeem)
